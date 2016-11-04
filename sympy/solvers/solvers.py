@@ -55,6 +55,7 @@ from types import GeneratorType
 from collections import defaultdict
 import warnings
 
+import random
 
 def _ispow(e):
     """Return True if e is a Pow or is exp."""
@@ -291,6 +292,15 @@ def checksol(f, symbol, sol=None, **flags):
             return val == 0
         if numerical and not val.free_symbols:
             return bool(abs(val.n(18).n(12, chop=True)) < 1e-9)
+
+        val = simplify(val)
+        if len(val.atoms(Symbol)) != 0:
+            res = 0
+            for i in range(10):
+                subs_list = [(j, random.random()) for j in val.atoms(Symbol)]
+                res += Abs(val.subs(dict(subs_list)).evalf())
+            return True if res < 1e-10 else False
+
         was = val
 
     if flags.get('warn', False):
